@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ColorfulBlocks.Model;
 using Random = UnityEngine.Random;
 
@@ -36,8 +37,10 @@ namespace ColorfulBlocks.Service
             }
         }
 
-        public void RequestMovement()
+        public UserMovementFeed RequestMovement(GridPiece gridPiece)
         {
+            var userMovementFeed = new UserMovementFeed(SearchAllAffectedBlocks(gridPiece));
+            
             Movements--;
             Scores +=  _dataSettings.Score;
 
@@ -45,8 +48,71 @@ namespace ColorfulBlocks.Service
             {
                 SessionIsFinished = true;
             }
+
+            return userMovementFeed;
+        }
+
+        private List<GridPiece> SearchAllAffectedBlocks(GridPiece gridPiece)
+        {
+            List<GridPiece> affectedPieces = new List<GridPiece>();
+            var searchAround  = SearchAroundBlocks(gridPiece);
+
+            if (searchAround.Count > 0)
+            {
+                foreach (var affectedPiece in searchAround)
+                {
+                    affectedPieces.AddRange(SearchAroundBlocks(affectedPiece));
+                }
+            }
+            
+            //add the one clicked
+            affectedPieces.Add(gridPiece);
+            return affectedPieces;
+        }
+
+        private List<GridPiece> SearchAroundBlocks(GridPiece gridPiece)
+        {
+            List<GridPiece> aroundPieces = new List<GridPiece>();
+          
+            var left = GetPiece(gridPiece.PosX, gridPiece.PosY-1);
+            var right = GetPiece(gridPiece.PosX, gridPiece.PosY+1);
+            var up = GetPiece(gridPiece.PosX-1, gridPiece.PosY);
+            var down = GetPiece(gridPiece.PosX+1, gridPiece.PosY);
+
+            if (left != null && gridPiece.BlockId.Equals(left.BlockId))
+            {
+                aroundPieces.Add(left);
+            }
+            if (right != null && gridPiece.BlockId.Equals(right.BlockId))
+            {
+                aroundPieces.Add(right);
+            }
+            
+            if (up != null && gridPiece.BlockId.Equals(up.BlockId))
+            {
+                aroundPieces.Add(up);
+            }
+            
+            if (down != null && gridPiece.BlockId.Equals(down.BlockId))
+            {
+                aroundPieces.Add(down);
+            }
+            
+            return aroundPieces;
+        }
+
+        private GridPiece GetPiece(int x, int y)
+        {
+            //respecting the bounds
+            if (x >= 0 && x < _dataSettings.GridLine && y >= 0 && y < _dataSettings.GridColumn)
+            {
+                return Grid[x,y];
+            }
+            
+            return null;
         }
     }
+    
 
 
     /// <summary>
@@ -75,6 +141,25 @@ namespace ColorfulBlocks.Service
         public void UpdateBlockId(string blockId)
         {
             this.BlockId = blockId;
+        }
+
+        public bool AreEquals(GridPiece obj)
+        {
+            return BlockId == obj.BlockId && PosX == obj.PosX && PosY == obj.PosY;
+        }
+    }
+    
+   /// <summary>
+   /// Provide the information required per user movement to guide
+   /// the view how it's going to work
+   /// </summary>
+    public class UserMovementFeed
+    {
+        public List<GridPiece> BlocksCollected { get; private set; }
+
+        public UserMovementFeed(List<GridPiece> blocksCollected)
+        {
+            BlocksCollected = blocksCollected;
         }
     }
 }

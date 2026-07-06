@@ -32,6 +32,20 @@ namespace ColorfulBlocks.View
         {
             BlockClickedRequested?.Invoke(gridPiece);
         }
+
+        public void CollectBlocks(List<GridPiece> blocksCollected)
+        {
+            foreach (var gridPiece in blocksCollected)
+            {
+                foreach (var blockView in _blocks)
+                {
+                    if (blockView.Piece.AreEquals(gridPiece))
+                    {
+                        blockView.SetCollect();
+                    }
+                }
+            }
+        }
         
         public void UpdateGrid(GridPiece[,] grid)
         {

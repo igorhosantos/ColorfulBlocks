@@ -17,6 +17,7 @@ namespace ColorfulBlocks.View
         
         private string Id;
         private GridPiece _piece;
+        public GridPiece Piece => _piece;
         public UnityAction<GridPiece> BlockClickedRequested;
         public void SetBlock(GridPiece piece)
         {
@@ -39,6 +40,11 @@ namespace ColorfulBlocks.View
            
             Debug.LogError("Sprite not found");
             return null;
+        }
+
+        public void SetCollect()
+        {
+            blockImage.sprite = null;
         }
     }
 }

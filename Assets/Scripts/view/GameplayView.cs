@@ -50,7 +50,9 @@ namespace ColorfulBlocks.View
        
        private void RequestMovement(GridPiece gridPiece)
        {
-           _gameplayService.RequestMovement();
+           var movementFeed = _gameplayService.RequestMovement(gridPiece);
+           gridView.CollectBlocks(movementFeed.BlocksCollected);
+           
            scoreText.text = $"{_gameplayService.Scores}";
            movementText.text = $"{_gameplayService.Movements}";
 
