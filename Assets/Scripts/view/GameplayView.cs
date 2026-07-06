@@ -12,7 +12,6 @@ namespace ColorfulBlocks.View
        [SerializeField] private GameplayDataSettings dataSettings;
        [SerializeField] private TextMeshProUGUI scoreText;
        [SerializeField] private TextMeshProUGUI movementText;
-       [SerializeField] private Button makeMoveButton;
        [SerializeField] private Canvas canvasPopup;
        [SerializeField] private Button resetGameButton;
        [SerializeField] private GridView gridView;
@@ -22,7 +21,6 @@ namespace ColorfulBlocks.View
        private void Awake()
        {
            ResetGame();
-           makeMoveButton.onClick.AddListener(RequestMovement);
            resetGameButton.onClick.AddListener(ResetGame);
        }
 
@@ -43,8 +41,14 @@ namespace ColorfulBlocks.View
            gridView.InitializeGrid(_gameplayService.Grid);
            gridView.BlockClickedRequested += OnBlockClickedRequested;
        }
-
-       private void RequestMovement()
+       
+       private void OnBlockClickedRequested(GridPiece gridPiece)
+       {
+           Debug.Log($"OnBlockClickedRequested: {gridPiece.BlockId} - {gridPiece.PosX} - {gridPiece.PosY}");
+           RequestMovement(gridPiece);
+       }
+       
+       private void RequestMovement(GridPiece gridPiece)
        {
            _gameplayService.RequestMovement();
            scoreText.text = $"{_gameplayService.Scores}";
@@ -57,9 +61,5 @@ namespace ColorfulBlocks.View
            }
        }
 
-       private void OnBlockClickedRequested(GridPiece  gridPiece)
-       {
-           Debug.Log($"OnBlockClickedRequested: {gridPiece.BlockId} - {gridPiece.PosX} - {gridPiece.PosY}");
-       }
     }
 }
