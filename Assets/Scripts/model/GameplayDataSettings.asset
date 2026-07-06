@@ -14,3 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movements: 5
   score: 10
+  gridLine: 6
+  gridColumn: 5
+  blockTypes:
+  - Id: BL
+    Sprite: {fileID: -8600411641421432971, guid: a0688069db68ecf4c80786645231f8d6, type: 3}
+  - Id: RE
+    Sprite: {fileID: 1766323589166174454, guid: 307b511a169fe0c47a8521bdb59dd3e3, type: 3}
+  - Id: GR
+    Sprite: {fileID: -9105749763464574675, guid: 12169f649722cec4ab7f5798dfef23e8, type: 3}
+  - Id: YE
+    Sprite: {fileID: 7424901662290350790, guid: 4919530d5835414468843d90616a7e13, type: 3}
+  - Id: BR
+    Sprite: {fileID: -190364731537695696, guid: 035f5699bec34ed41b987a0285490cae, type: 3}
