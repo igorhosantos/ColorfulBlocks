@@ -44,6 +44,8 @@ namespace ColorfulBlocks.View
 
         public void SetCollect()
         {
+            Debug.Log($"Set Collected: {_piece.ToString()}");
+            
             blockImage.sprite = null;
         }
     }

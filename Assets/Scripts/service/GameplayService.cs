@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ColorfulBlocks.Model;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 
@@ -55,19 +56,43 @@ namespace ColorfulBlocks.Service
         private List<GridPiece> SearchAllAffectedBlocks(GridPiece gridPiece)
         {
             List<GridPiece> affectedPieces = new List<GridPiece>();
-            var searchAround  = SearchAroundBlocks(gridPiece);
+            affectedPieces.Add(gridPiece);
+            
+            //recursive finding of the affected blocks
+            SearchAllAffectedBlocksRecursive(gridPiece, affectedPieces);
 
-            if (searchAround.Count > 0)
+            //filtering the unique pieces affected to avoid duplications
+            List<GridPiece> uniqueAffectedPieces = new List<GridPiece>();
+            foreach (var piece in affectedPieces)
             {
-                foreach (var affectedPiece in searchAround)
+                if (!uniqueAffectedPieces.Exists(existing => existing.AreEquals(piece)))
                 {
-                    affectedPieces.AddRange(SearchAroundBlocks(affectedPiece));
+                    uniqueAffectedPieces.Add(piece);
                 }
             }
-            
-            //add the one clicked
-            affectedPieces.Add(gridPiece);
-            return affectedPieces;
+
+            return uniqueAffectedPieces;
+        }
+
+        private void SearchAllAffectedBlocksRecursive(GridPiece gridPiece, List<GridPiece> affectedPieces)
+        {
+            var searchAround = SearchAroundBlocks(gridPiece);
+
+            if (searchAround.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var piece in searchAround)
+            {
+                if (affectedPieces.Exists(existing => existing.AreEquals(piece)))
+                {
+                    continue;
+                }
+
+                affectedPieces.Add(piece);
+                SearchAllAffectedBlocksRecursive(piece, affectedPieces);
+            }
         }
 
         private List<GridPiece> SearchAroundBlocks(GridPiece gridPiece)
@@ -146,6 +171,11 @@ namespace ColorfulBlocks.Service
         public bool AreEquals(GridPiece obj)
         {
             return BlockId == obj.BlockId && PosX == obj.PosX && PosY == obj.PosY;
+        }
+
+        public override string ToString()
+        {
+            return $"{BlockId} - {PosX},{PosY}";
         }
     }
     
