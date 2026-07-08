@@ -17,6 +17,8 @@ namespace ColorfulBlocks.Service
 
         public GridPiece[,] Grid;
 
+        private UserMovementFeed _lastUserMovementFeed;
+
         public GameplayService(GameplayDataSettings dataSettings)
         {
             _dataSettings = dataSettings;
@@ -36,11 +38,13 @@ namespace ColorfulBlocks.Service
                     Grid[i,j] = new GridPiece(i,j, _dataSettings.BlockTypes[randomBlockId].Id);
                 }
             }
+            
+            Debug.Log(LogGrid());
         }
 
         public UserMovementFeed RequestMovement(GridPiece gridPiece)
         {
-            var userMovementFeed = new UserMovementFeed(SearchAllAffectedBlocks(gridPiece));
+            _lastUserMovementFeed = new UserMovementFeed(SearchAllAffectedBlocks(gridPiece));
             
             Movements--;
             Scores +=  _dataSettings.Score;
@@ -50,7 +54,7 @@ namespace ColorfulBlocks.Service
                 SessionIsFinished = true;
             }
 
-            return userMovementFeed;
+            return _lastUserMovementFeed;
         }
 
         private List<GridPiece> SearchAllAffectedBlocks(GridPiece gridPiece)
@@ -67,6 +71,7 @@ namespace ColorfulBlocks.Service
             {
                 if (!uniqueAffectedPieces.Exists(existing => existing.AreEquals(piece)))
                 {
+                    piece.SetAsDirty();
                     uniqueAffectedPieces.Add(piece);
                 }
             }
@@ -136,10 +141,69 @@ namespace ColorfulBlocks.Service
             
             return null;
         }
+
+        private GridPiece GetNextValidPiecePerColumn(int x, int y)
+        {
+            for (int i = x; i < Grid.GetLength(1); i++)
+            {
+                var foundPiece = GetPiece(i+1, y);
+                if (foundPiece is { IsDirty: false })
+                {
+                    return foundPiece;
+                }
+            }
+            
+            return null;
+        }
+        
+        public GridPiece[,] UpdateGrid()
+        {
+            var oldBlocksCollected = _lastUserMovementFeed.BlocksCollected;
+            
+            //fall down the remaining pieces
+            foreach (var oldPiece in oldBlocksCollected)
+            {
+                var oldPieceX = oldPiece.PosX;
+                var oldPieceY = oldPiece.PosY;
+                
+                //access the grid and update the column changes 
+                for (int i = oldPieceX; i < Grid.GetLength(1); i++)
+                {
+                    var previousPiece = GetPiece(i, oldPieceY);
+                    var nextValidPiece = GetNextValidPiecePerColumn(i, oldPieceY);
+
+                    if (previousPiece != null && nextValidPiece != null)
+                    {
+                        previousPiece.UpdateBlockId(nextValidPiece.BlockId);
+                        nextValidPiece.SetAsDirty();
+                    }
+                }
+            }
+            
+            Debug.Log(LogGrid());
+            
+            //update the grid with the new ones
+            return Grid;
+        }
+        
+        private string LogGrid()
+        {
+            var str = $"Grid Log: \n";
+
+            for (int i = Grid.GetLength(0)-1; i >= 0; i--)
+            {
+                for (int j = Grid.GetLength(1)-1; j >= 0 ; j--)
+                {
+                    str += Grid[i, j].BlockId + ",";
+                }
+
+                str += '\n';
+            }
+            return str;
+        }
+        
     }
     
-
-
     /// <summary>
     /// Represents one square of the grid that contains the coordination
     /// and the current block id there
@@ -149,6 +213,7 @@ namespace ColorfulBlocks.Service
         public int PosX { get; private set; }
         public int PosY  { get; private set; }
         public string BlockId  { get; private set; }
+        public bool IsDirty  { get; private set; }
 
         public GridPiece(int posX, int posY, string blockId)
         {
@@ -157,15 +222,15 @@ namespace ColorfulBlocks.Service
             this.BlockId = blockId;
         }
 
-        public void UpdatePos(int posX, int posY)
+        public void SetAsDirty()
         {
-            this.PosX = posX;
-            this.PosY = posY;
+            IsDirty = true;
         }
         
         public void UpdateBlockId(string blockId)
         {
             this.BlockId = blockId;
+            IsDirty = false; 
         }
 
         public bool AreEquals(GridPiece obj)

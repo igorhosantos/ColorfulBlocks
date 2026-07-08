@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using ColorfulBlocks.Model;
 using ColorfulBlocks.Service;
 using TMPro;
@@ -45,10 +46,10 @@ namespace ColorfulBlocks.View
        private void OnBlockClickedRequested(GridPiece gridPiece)
        {
            Debug.Log($"OnBlockClickedRequested: {gridPiece.BlockId} - {gridPiece.PosX} - {gridPiece.PosY}");
-           RequestMovement(gridPiece);
+           StartCoroutine(RequestMovement(gridPiece));
        }
        
-       private void RequestMovement(GridPiece gridPiece)
+       private IEnumerator RequestMovement(GridPiece gridPiece)
        {
            var movementFeed = _gameplayService.RequestMovement(gridPiece);
            gridView.CollectBlocks(movementFeed.BlocksCollected);
@@ -61,6 +62,11 @@ namespace ColorfulBlocks.View
            {
                canvasPopup.gameObject.SetActive(true);
            }
+           
+           yield return new WaitForSeconds(1);
+           
+           var updatedGrid = _gameplayService.UpdateGrid();
+           gridView.UpdateGrid(updatedGrid);
        }
 
     }

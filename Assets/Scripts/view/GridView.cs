@@ -49,7 +49,15 @@ namespace ColorfulBlocks.View
         
         public void UpdateGrid(GridPiece[,] grid)
         {
-            
+            var blockIndex = 0;
+            for (int i = 0; i < grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < grid.GetLength(1); j++)
+                {
+                    _blocks[blockIndex].SetBlock(grid[i, j]);
+                    blockIndex++;
+                }
+            }
         }
         
         private void ResetGrid()

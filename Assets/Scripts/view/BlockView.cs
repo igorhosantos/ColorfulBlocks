@@ -19,13 +19,25 @@ namespace ColorfulBlocks.View
         private GridPiece _piece;
         public GridPiece Piece => _piece;
         public UnityAction<GridPiece> BlockClickedRequested;
+
+        private void Awake()
+        {
+            button.onClick.AddListener(()=> BlockClickedRequested?.Invoke(_piece));
+        }
+
         public void SetBlock(GridPiece piece)
         {
             _piece = piece;
             this.Id = piece.BlockId;
-            blockImage.sprite = GetSpriteById(Id);
+            if(piece.IsDirty)
+            {
+                SetCollect();
+            }
+            else
+            {
+                blockImage.sprite = GetSpriteById(Id);
+            }
             label.text = $"{_piece.PosX},{_piece.PosY}";
-            button.onClick.AddListener(()=> BlockClickedRequested?.Invoke(_piece));
         }
         
         public Sprite GetSpriteById(string id)
@@ -45,7 +57,6 @@ namespace ColorfulBlocks.View
         public void SetCollect()
         {
             Debug.Log($"Set Collected: {_piece.ToString()}");
-            
             blockImage.sprite = null;
         }
     }
