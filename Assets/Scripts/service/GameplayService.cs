@@ -182,7 +182,31 @@ namespace ColorfulBlocks.Service
             
             Debug.Log(LogGrid());
             
-            //update the grid with the new ones
+            return Grid;
+        }
+        
+        /// <summary>
+        /// find all the dirty pieces, drop a new block id for them
+        /// </summary>
+        /// <returns></returns>
+        public GridPiece[,] DropNewPieces()
+        {
+            //set as not dirty and set a new random block id 
+            for (int i = 0; i < Grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < Grid.GetLength(1); j++)
+                {
+                    var piece = Grid[i, j];
+                    if (piece.IsDirty)
+                    {
+                        var randomBlockId = Random.Range(0, _dataSettings.BlockTypes.Capacity);
+                        piece.UpdateBlockId(_dataSettings.BlockTypes[randomBlockId].Id);
+                    }
+                }
+            }
+            
+            Debug.Log(LogGrid());
+            
             return Grid;
         }
         

@@ -63,10 +63,15 @@ namespace ColorfulBlocks.View
                canvasPopup.gameObject.SetActive(true);
            }
            
-           yield return new WaitForSeconds(1);
+           yield return new WaitForSeconds(0.2f);
            
            var updatedGrid = _gameplayService.UpdateGrid();
            gridView.UpdateGrid(updatedGrid);
+           
+           yield return new WaitForSeconds(0.5f);
+           
+           var newPiecesGrid = _gameplayService.DropNewPieces();
+           gridView.UpdateGrid(newPiecesGrid);
        }
 
     }
